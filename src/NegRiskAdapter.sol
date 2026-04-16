@@ -31,6 +31,7 @@ interface INegRiskAdapterEE is IMarketStateManagerEE, IAuthEE {
         address indexed stakeholder, bytes32 indexed marketId, uint256 indexed indexSet, uint256 amount
     );
     event PayoutRedemption(address indexed redeemer, bytes32 indexed conditionId, uint256[] amounts, uint256 payout);
+    event BulkOutcomeReported(bytes32 indexed marketId, uint256 winnerIndex, uint256 questionCount);
 }
 
 /// @title NegRiskAdapter
@@ -409,6 +410,42 @@ contract NegRiskAdapter is ERC1155TokenReceiver, MarketStateManager, INegRiskAda
         ctf.reportPayouts(_questionId, Helpers.payouts(_outcome));
 
         emit OutcomeReported(NegRiskIdLib.getMarketId(_questionId), _questionId, _outcome);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                          BULK REPORT OUTCOME
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Resolve all questions in a neg-risk market atomically
+    /// @dev Exactly one question (at _winnerIndex) resolves true, all others false
+    /// @param _marketId The neg-risk market ID
+    /// @param _winnerIndex The question index that resolves true (0-based)
+    function bulkReportOutcome(bytes32 _marketId, uint256 _winnerIndex) external {
+        MarketData md = getMarketData(_marketId);
+        address oracle = md.oracle();
+        uint256 questionCount = md.questionCount();
+
+        if (oracle == address(0)) revert MarketNotPrepared();
+        if (oracle != msg.sender) revert OnlyOracle();
+        if (questionCount < 2) revert NoConvertiblePositions();
+        if (_winnerIndex >= questionCount) revert IndexOutOfBounds();
+        if (md.determined()) revert MarketAlreadyDetermined();
+
+        for (uint256 i = 0; i < questionCount;) {
+            bytes32 questionId = NegRiskIdLib.getQuestionId(_marketId, uint8(i));
+            bool outcome = (i == _winnerIndex);
+
+            _reportOutcome(questionId, outcome);
+            ctf.reportPayouts(questionId, Helpers.payouts(outcome));
+
+            emit OutcomeReported(_marketId, questionId, outcome);
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        emit BulkOutcomeReported(_marketId, _winnerIndex, questionCount);
     }
 
     /*//////////////////////////////////////////////////////////////
