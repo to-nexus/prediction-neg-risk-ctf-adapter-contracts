@@ -160,9 +160,7 @@ contract NegRiskOperatorTest is TestHelper, INegRiskOperatorEE {
         nrOperator.reportPayouts(_requestId, payouts);
     }
 
-    function test_revert_reportPayouts_invalidPayoutsValues(bytes32 _requestId, uint8 _payout0, uint8 _payout1)
-        public
-    {
+    function test_revert_reportPayouts_invalidPayoutsValues(bytes32 _requestId, uint8 _payout0, uint8 _payout1) public {
         vm.assume(uint256(_payout0) + uint256(_payout1) != 1);
 
         uint256[] memory payouts = new uint256[](2);

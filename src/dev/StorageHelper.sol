@@ -13,9 +13,8 @@ contract StorageHelper is Script {
     }
 
     function _dealERC1155(address _erc1155, address _account, uint256 _id, uint256 _amount) internal {
-        stdstore.target(_erc1155).sig("balanceOf(address,uint256)").with_key(_account).with_key(_id).checked_write(
-            _amount
-        );
+        stdstore.target(_erc1155).sig("balanceOf(address,uint256)").with_key(_account).with_key(_id)
+            .checked_write(_amount);
     }
 
     function _dealERC20(address _erc20, address _account, uint256 _amount) internal {

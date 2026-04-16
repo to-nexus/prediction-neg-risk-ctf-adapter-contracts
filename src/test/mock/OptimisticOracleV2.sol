@@ -25,19 +25,11 @@ contract OptimisticOracleV2 {
         return (price == 0 || price == 0.5 ether || price == 1 ether);
     }
 
-    function requestPrice(bytes32, uint256, bytes memory, address, uint256)
-        external
-        pure
-        returns (uint256 totalBond)
-    {
+    function requestPrice(bytes32, uint256, bytes memory, address, uint256) external pure returns (uint256 totalBond) {
         return 0;
     }
 
-    function setBond(bytes32, uint256, bytes memory, uint256)
-        external
-        pure
-        returns (uint256 totalBond)
-    {
+    function setBond(bytes32, uint256, bytes memory, uint256) external pure returns (uint256 totalBond) {
         return 0;
     }
 

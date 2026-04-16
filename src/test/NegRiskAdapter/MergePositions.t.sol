@@ -64,9 +64,8 @@ contract NegRiskAdapter_MergePositions_Test is NegRiskAdapter_SetUp {
         partition[1] = 2;
 
         vm.prank(brian);
-        IConditionalTokens(address(nrAdapter)).mergePositions(
-            address(usdc), bytes32(0), conditionId, partition, _amount
-        );
+        IConditionalTokens(address(nrAdapter))
+            .mergePositions(address(usdc), bytes32(0), conditionId, partition, _amount);
 
         _after(_amount);
     }
