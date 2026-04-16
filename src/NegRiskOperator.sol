@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity 0.8.30;
 
 import {NegRiskIdLib} from "src/libraries/NegRiskIdLib.sol";
 import {Auth} from "src/modules/Auth.sol";
