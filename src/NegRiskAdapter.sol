@@ -4,14 +4,14 @@ pragma solidity 0.8.30;
 import {ERC1155TokenReceiver} from "lib/solmate/src/tokens/ERC1155.sol";
 import {ERC20} from "lib/solmate/src/tokens/ERC20.sol";
 import {SafeTransferLib} from "lib/solmate/src/utils/SafeTransferLib.sol";
-import {WrappedCollateral} from "src/WrappedCollateral.sol";
-import {MarketData, MarketStateManager, IMarketStateManagerEE} from "src/modules/MarketDataManager.sol";
-import {CTHelpers} from "src/libraries/CTHelpers.sol";
-import {Helpers} from "src/libraries/Helpers.sol";
-import {NegRiskIdLib} from "src/libraries/NegRiskIdLib.sol";
-import {IConditionalTokens} from "src/interfaces/IConditionalTokens.sol";
-import {Auth} from "src/modules/Auth.sol";
-import {IAuthEE} from "src/modules/interfaces/IAuth.sol";
+import {WrappedCollateral} from "./WrappedCollateral.sol";
+import {MarketData, MarketStateManager, IMarketStateManagerEE} from "./modules/MarketDataManager.sol";
+import {CTHelpers} from "./libraries/CTHelpers.sol";
+import {Helpers} from "./libraries/Helpers.sol";
+import {NegRiskIdLib} from "./libraries/NegRiskIdLib.sol";
+import {IConditionalTokens} from "./interfaces/IConditionalTokens.sol";
+import {Auth} from "./modules/Auth.sol";
+import {IAuthEE} from "./modules/interfaces/IAuth.sol";
 
 /// @title INegRiskAdapterEE
 /// @notice NegRiskAdapter Errors and Events

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {Test} from "lib/forge-std/src/Test.sol";
-import {CTHelpers} from "src/libraries/CTHelpers.sol";
+import {CTHelpers} from "../../libraries/CTHelpers.sol";
 
 /// @notice Pins the ID derivation formulas in CTHelpers to the keccak forms used by the team
 ///         ConditionalTokens implementation (prediction-contracts/src/ctf/ConditionalTokens.sol).
@@ -26,11 +26,10 @@ contract CTHelpersTest is Test {
         assertEq(actual, expected, "getConditionId must match team CT _getConditionId keccak formula");
     }
 
-    function testFuzz_getConditionId_matchesKeccakFormula(
-        address oracle,
-        bytes32 questionId,
-        uint256 outcomeSlotCount
-    ) public pure {
+    function testFuzz_getConditionId_matchesKeccakFormula(address oracle, bytes32 questionId, uint256 outcomeSlotCount)
+        public
+        pure
+    {
         bytes32 expected = keccak256(abi.encodePacked(oracle, questionId, outcomeSlotCount));
         bytes32 actual = CTHelpers.getConditionId(oracle, questionId, outcomeSlotCount);
         assertEq(actual, expected);

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {TestHelper} from "src/dev/TestHelper.sol";
-import {Vault} from "src/Vault.sol";
-import {USDC} from "src/test/mock/USDC.sol";
+import {TestHelper} from "../dev/TestHelper.sol";
+import {Vault} from "../Vault.sol";
+import {USDC} from "./mock/USDC.sol";
 
 contract VaultTest is TestHelper {
     Vault vault;

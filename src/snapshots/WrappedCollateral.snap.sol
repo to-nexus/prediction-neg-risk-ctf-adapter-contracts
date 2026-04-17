@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {TestHelper} from "src/dev/TestHelper.sol";
-import {USDC} from "src/test/mock/USDC.sol";
+import {TestHelper} from "../dev/TestHelper.sol";
+import {USDC} from "../test/mock/USDC.sol";
 
-import {WrappedCollateral} from "src/WrappedCollateral.sol";
+import {WrappedCollateral} from "../WrappedCollateral.sol";
 
 contract WrappedCollateralSnapshots is TestHelper {
     USDC usdc;
