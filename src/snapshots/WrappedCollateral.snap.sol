@@ -2,7 +2,6 @@
 pragma solidity ^0.8.15;
 
 import {TestHelper} from "src/dev/TestHelper.sol";
-import {DeployLib} from "src/dev/libraries/DeployLib.sol";
 import {USDC} from "src/test/mock/USDC.sol";
 
 import {WrappedCollateral} from "src/WrappedCollateral.sol";

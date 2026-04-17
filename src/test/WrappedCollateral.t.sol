@@ -3,9 +3,7 @@ pragma solidity ^0.8.15;
 
 import {TestHelper} from "src/dev/TestHelper.sol";
 
-import {NegRiskAdapter} from "src/NegRiskAdapter.sol";
 import {WrappedCollateral} from "src/WrappedCollateral.sol";
-import {DeployLib} from "src/dev/libraries/DeployLib.sol";
 import {USDC} from "src/test/mock/USDC.sol";
 
 contract WrappedCollateralTest is TestHelper {
