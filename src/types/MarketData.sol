@@ -34,7 +34,10 @@ library MarketDataLib {
     }
 
     /// @notice increments the questionCount
-    /// @notice does _not_ check to see if the questionCount is already at the maximum value
+    /// @notice Solidity 0.8+ checked arithmetic reverts this call when questionCount is
+    ///         already 255 (top byte = 0xFF): `uint256(data) + INCREMENT` carries out of
+    ///         bit 255 and overflows uint256, causing a checked-math revert before any
+    ///         spill into md[1] (the `determined` flag) can occur.
     /// @return marketData - the modified MarketData
     function incrementQuestionCount(MarketData _data) internal pure returns (MarketData) {
         bytes32 data = MarketData.unwrap(_data);
