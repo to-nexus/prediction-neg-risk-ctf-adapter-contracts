@@ -1,0 +1,208 @@
+// Code generated via abigen V2 - DO NOT EDIT.
+// This file is a generated binding and any manual changes will be lost.
+
+package binding
+
+import (
+	"bytes"
+	"errors"
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind/v2"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+)
+
+// Reference imports to suppress errors if they are not otherwise used.
+var (
+	_ = bytes.Equal
+	_ = errors.New
+	_ = big.NewInt
+	_ = common.Big1
+	_ = types.BloomLookup
+	_ = abi.ConvertType
+)
+
+// StorageHelperMetaData contains all meta data concerning the StorageHelper contract.
+var StorageHelperMetaData = bind.MetaData{
+	ABI: "[{\"inputs\":[],\"name\":\"IS_SCRIPT\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_target\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"_sig\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"_param\",\"type\":\"address\"}],\"name\":\"getStorageSlot\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"who\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes4\",\"name\":\"fsig\",\"type\":\"bytes4\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"keysHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"slot\",\"type\":\"uint256\"}],\"name\":\"SlotFound\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"who\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"slot\",\"type\":\"uint256\"}],\"name\":\"WARNING_UninitedSlot\",\"type\":\"event\"}]",
+	ID:  "StorageHelper",
+	Bin: "0x6080604052600c805462ff00ff191662010001179055348015601f575f5ffd5b506118a48061002d5f395ff3fe608060405234801561000f575f5ffd5b5060043610610034575f3560e01c80634a925b7114610038578063f8ccbf471461005e575b5f5ffd5b61004b610046366004611517565b610081565b6040519081526020015b60405180910390f35b600c546100719062010000900460ff1681565b6040519015158152602001610055565b5f6100a86100a38361009d86610097868a6100b0565b906100fe565b90610140565b610177565b949350505050565b6004820180547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff83161790555f825b90505b92915050565b805160208201206002830180547fffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000001660e09290921c9190911790555f826100f5565b6001808301805491820181555f9081526020812073ffffffffffffffffffffffffffffffffffffffff8416920191909155826100f5565b5f6100f88260015f6101898383610191565b549392505050565b6004820154600283015460038401545f9273ffffffffffffffffffffffffffffffffffffffff169160e01b90836101c787610b2e565b73ffffffffffffffffffffffffffffffffffffffff85165f908152602089815260408083207fffffffff0000000000000000000000000000000000000000000000000000000088168452825280832090519394509261022a918591879101611600565b604080517fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe08184030181529181528151602092830120835290820192909252015f206003015460ff16156103175785156102875761028787610c37565b73ffffffffffffffffffffffffffffffffffffffff84165f908152602088815260408083207fffffffff0000000000000000000000000000000000000000000000000000000087168452825280832090519092916102e9918591879101611600565b6040516020818303038152906040528051906020012081526020019081526020015f209450505050506100f8565b7f885cb69240a935d632d79c317109709ecfa91a80626ff3989d68f67f5b1dd12d5f1c73ffffffffffffffffffffffffffffffffffffffff1663266cf1096040518163ffffffff1660e01b81526004015f604051808303815f87803b15801561037e575f5ffd5b505af1158015610390573d5f5f3e3d5ffd5b505050505f61039e88610cdb565b6040517f65bc948100000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff881660048201529092505f9150737109709ecfa91a80626ff3989d68f67f5b1dd12d906365bc9481906024015f60405180830381865afa15801561041f573d5f5f3e3d5ffd5b505050506040513d5f823e601f3d9081017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe01682016040526104649190810190611698565b50905080515f036104fe57604080517f08c379a00000000000000000000000000000000000000000000000000000000081526020600482015260248101919091527f73746453746f726167652066696e642853746453746f72616765293a204e6f2060448201527f73746f726167652075736520646574656374656420666f72207461726765742e60648201526084015b60405180910390fd5b80515b5f61050b8261172a565b91508110610954575f7f885cb69240a935d632d79c317109709ecfa91a80626ff3989d68f67f5b1dd12d5f1c73ffffffffffffffffffffffffffffffffffffffff1663667f9d70898585815181106105655761056561175e565b60200260200101516040518363ffffffff1660e01b81526004016105ab92919073ffffffffffffffffffffffffffffffffffffffff929092168252602082015260400190565b602060405180830381865afa1580156105c6573d5f5f3e3d5ffd5b505050506040513d601f19601f820116820180604052508101906105ea919061178b565b90508061065d577f080fc4a96620c4462e705b23f346413fe3796bb63c6f8d8591baec0e231577a5888484815181106106255761062561175e565b6020908102919091018101516040805173ffffffffffffffffffffffffffffffffffffffff9094168452918301520160405180910390a15b6106808b8484815181106106735761067361175e565b6020026020010151610dcb565b61068a5750610501565b60068b01545f90819060ff16156106d6575f6106bf8e8787815181106106b2576106b261175e565b6020026020010151611034565b90945092509050806106d45750505050610501565b505b6001828201610100031b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff01811b8316811c8681146107185750505050610501565b7f9c9555b1e3102e3cf48f427d79cb678f5d9bd1ed0ad574389461e255f95170ed8b8b8a8c60405160200161074e929190611600565b604051602081830303815290604052805190602001208989815181106107765761077661175e565b6020908102919091018101516040805173ffffffffffffffffffffffffffffffffffffffff90961686527fffffffff000000000000000000000000000000000000000000000000000000009094169185019190915291830152606082015260800160405180910390a160405180608001604052808787815181106107fc576107fc61175e565b60200260200101515f1c8152602001848152602001838152602001600115158152508e5f015f8d73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020015f205f8c7bffffffffffffffffffffffffffffffffffffffffffffffffffffffff19167bffffffffffffffffffffffffffffffffffffffffffffffffffffffff191681526020019081526020015f205f8a8c6040516020016108bd929190611600565b604080518083037fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe001815291815281516020928301208352828201939093529082015f2083518155908301516001820155908201516002820155606090910151600390910180547fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0016911515919091179055505050505b5073ffffffffffffffffffffffffffffffffffffffff86165f90815260208a815260408083207fffffffff0000000000000000000000000000000000000000000000000000000089168452825280832090519092916109b7918791899101611600565b604080517fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe08184030181529181528151602092830120835290820192909252015f206003015460ff16610a8c576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602f60248201527f73746453746f726167652066696e642853746453746f72616765293a20536c6f60448201527f74287329206e6f7420666f756e642e000000000000000000000000000000000060648201526084016104f5565b8715610a9b57610a9b89610c37565b73ffffffffffffffffffffffffffffffffffffffff86165f90815260208a815260408083207fffffffff000000000000000000000000000000000000000000000000000000008916845282528083209051909291610afd918791899101611600565b6040516020818303038152906040528051906020012081526020019081526020015f20965050505050505092915050565b6060816007018054610b3f906117a2565b90505f03610ba0576100f882600101805480602002602001604051908101604052809291908181526020018280548015610b9657602002820191905f5260205f20905b815481526020019060010190808311610b82575b50505050506111d1565b816007018054610baf906117a2565b80601f0160208091040260200160405190810160405280929190818152602001828054610bdb906117a2565b8015610c265780601f10610bfd57610100808354040283529160200191610c26565b820191905f5260205f20905b815481529060010190602001808311610c0957829003601f168201915b50505050509050919050565b919050565b6004810180547fffffffffffffffffffffffff00000000000000000000000000000000000000001690556002810180547fffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000169055610c98600182015f611412565b5f600382018190556006820180547fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00169055610cd890600783019061142d565b50565b60028101545f908190819060e01b610cf285610b2e565b604051602001610d039291906117f3565b604080517fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe08184030181529082905260048601549092505f91829173ffffffffffffffffffffffffffffffffffffffff1690610d60908590611826565b5f60405180830381855afa9150503d805f8114610d98576040519150601f19603f3d011682016040523d82523d5f602084013e610d9d565b606091505b50915091505f610dbd8288600301546020610db89190611831565b61126a565b929792965091945050505050565b6004828101546040517f667f9d7000000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff90911691810191909152602481018290525f908190737109709ecfa91a80626ff3989d68f67f5b1dd12d9063667f9d7090604401602060405180830381865afa158015610e5b573d5f5f3e3d5ffd5b505050506040513d601f19601f82011682018060405250810190610e7f919061178b565b90505f5f610e8c86610cdb565b90925090505f8115610e9e575f610ec0565b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff5b6004888101546040517f70ca10bb00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff909116918101919091526024810188905260448101829052909150737109709ecfa91a80626ff3989d68f67f5b1dd12d906370ca10bb906064015f604051808303815f87803b158015610f52575f5ffd5b505af1158015610f64573d5f5f3e3d5ffd5b505050505f610f7288610cdb565b60048a8101546040517f70ca10bb00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff90911691810191909152602481018a905260448101889052909250737109709ecfa91a80626ff3989d68f67f5b1dd12d91506370ca10bb906064015f604051808303815f87803b158015611005575f5ffd5b505af1158015611017573d5f5f3e3d5ffd5b505050508380156110285750808314155b98975050505050505050565b6004828101546040517f667f9d7000000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff90911691810191909152602481018290525f90819081908190737109709ecfa91a80626ff3989d68f67f5b1dd12d9063667f9d7090604401602060405180830381865afa1580156110c8573d5f5f3e3d5ffd5b505050506040513d601f19601f820116820180604052508101906110ec919061178b565b90505f5f6110fc888860016112f2565b915091505f5f61110d8a8a5f6112f2565b60048c8101546040517f70ca10bb00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff90911691810191909152602481018c9052604481018890529193509150737109709ecfa91a80626ff3989d68f67f5b1dd12d906370ca10bb906064015f604051808303815f87803b1580156111a1575f5ffd5b505af11580156111b3573d5f5f3e3d5ffd5b505050508380156111c15750815b9a92995097509095505050505050565b60605f825160206111e29190611831565b67ffffffffffffffff8111156111fa576111fa61149b565b6040519080825280601f01601f191660200182016040528015611224576020820181803683370190505b5090505f5b8351811015611263575f8482815181106112455761124561175e565b60209081029190910181015183820285019091015250600101611229565b5092915050565b5f5f5f602085511161127d578451611280565b60205b90505f5b818110156112e857611297816008611831565b866112a28388611848565b815181106112b2576112b261175e565b01602001517fff0000000000000000000000000000000000000000000000000000000000000016901c9290921791600101611284565b5090949350505050565b5f80805b610100811015611402575f8461130f576001821b61131f565b61131a8260ff61185b565b6001901b5b6004888101546040517f70ca10bb00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff909116918101919091526024810188905260448101829052909150737109709ecfa91a80626ff3989d68f67f5b1dd12d906370ca10bb906064015f604051808303815f87803b1580156113b1575f5ffd5b505af11580156113c3573d5f5f3e3d5ffd5b505050505f5f6113d289610cdb565b915091508180156113e257508015155b156113f757600184955095505050505061140a565b5050506001016112f6565b505f5f915091505b935093915050565b5080545f8255905f5260205f2090810190610cd89190611460565b508054611439906117a2565b5f825580601f10611448575050565b601f0160209004905f5260205f2090810190610cd891905b5b80821115611474575f8155600101611461565b5090565b803573ffffffffffffffffffffffffffffffffffffffff81168114610c32575f5ffd5b7f4e487b71000000000000000000000000000000000000000000000000000000005f52604160045260245ffd5b604051601f82017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe016810167ffffffffffffffff8111828210171561150f5761150f61149b565b604052919050565b5f5f5f60608486031215611529575f5ffd5b61153284611478565b9250602084013567ffffffffffffffff81111561154d575f5ffd5b8401601f8101861361155d575f5ffd5b803567ffffffffffffffff8111156115775761157761149b565b6115a860207fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0601f840116016114c8565b8181528760208385010111156115bc575f5ffd5b816020840160208301375f602083830101528094505050506115e060408501611478565b90509250925092565b5f81518060208401855e5f93019283525090919050565b5f61160b82856115e9565b9283525050602001919050565b5f82601f830112611627575f5ffd5b815167ffffffffffffffff8111156116415761164161149b565b8060051b611651602082016114c8565b9182526020818501810192908101908684111561166c575f5ffd5b6020860192505b8383101561168e578251825260209283019290910190611673565b9695505050505050565b5f5f604083850312156116a9575f5ffd5b825167ffffffffffffffff8111156116bf575f5ffd5b6116cb85828601611618565b925050602083015167ffffffffffffffff8111156116e7575f5ffd5b6116f385828601611618565b9150509250929050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b5f81611738576117386116fd565b507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0190565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52603260045260245ffd5b5f6020828403121561179b575f5ffd5b5051919050565b600181811c908216806117b657607f821691505b6020821081036117ed577f4e487b71000000000000000000000000000000000000000000000000000000005f52602260045260245ffd5b50919050565b7fffffffff00000000000000000000000000000000000000000000000000000000831681525f6100a860048301846115e9565b5f6100f582846115e9565b80820281158282048414176100f8576100f86116fd565b808201808211156100f8576100f86116fd565b818103818111156100f8576100f86116fd56fea2646970667358221220e3fe4816a963e0d2b8943a7529e37cf8052ee658d50ecaf97d57867ecce2f69264736f6c634300081e0033",
+}
+
+// StorageHelper is an auto generated Go binding around an Ethereum contract.
+type StorageHelper struct {
+	abi abi.ABI
+}
+
+// NewStorageHelper creates a new instance of StorageHelper.
+func NewStorageHelper() *StorageHelper {
+	parsed, err := StorageHelperMetaData.ParseABI()
+	if err != nil {
+		panic(errors.New("invalid ABI: " + err.Error()))
+	}
+	return &StorageHelper{abi: *parsed}
+}
+
+// Instance creates a wrapper for a deployed contract instance at the given address.
+// Use this to create the instance object passed to abigen v2 library functions Call, Transact, etc.
+func (c *StorageHelper) Instance(backend bind.ContractBackend, addr common.Address) *bind.BoundContract {
+	return bind.NewBoundContract(addr, c.abi, backend, backend, backend)
+}
+
+// PackISSCRIPT is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0xf8ccbf47.  This method will panic if any
+// invalid/nil inputs are passed.
+//
+// Solidity: function IS_SCRIPT() view returns(bool)
+func (storageHelper *StorageHelper) PackISSCRIPT() []byte {
+	enc, err := storageHelper.abi.Pack("IS_SCRIPT")
+	if err != nil {
+		panic(err)
+	}
+	return enc
+}
+
+// TryPackISSCRIPT is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0xf8ccbf47.  This method will return an error
+// if any inputs are invalid/nil.
+//
+// Solidity: function IS_SCRIPT() view returns(bool)
+func (storageHelper *StorageHelper) TryPackISSCRIPT() ([]byte, error) {
+	return storageHelper.abi.Pack("IS_SCRIPT")
+}
+
+// UnpackISSCRIPT is the Go binding that unpacks the parameters returned
+// from invoking the contract method with ID 0xf8ccbf47.
+//
+// Solidity: function IS_SCRIPT() view returns(bool)
+func (storageHelper *StorageHelper) UnpackISSCRIPT(data []byte) (bool, error) {
+	out, err := storageHelper.abi.Unpack("IS_SCRIPT", data)
+	if err != nil {
+		return *new(bool), err
+	}
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+	return out0, nil
+}
+
+// PackGetStorageSlot is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x4a925b71.  This method will panic if any
+// invalid/nil inputs are passed.
+//
+// Solidity: function getStorageSlot(address _target, string _sig, address _param) returns(uint256)
+func (storageHelper *StorageHelper) PackGetStorageSlot(target common.Address, sig string, param common.Address) []byte {
+	enc, err := storageHelper.abi.Pack("getStorageSlot", target, sig, param)
+	if err != nil {
+		panic(err)
+	}
+	return enc
+}
+
+// TryPackGetStorageSlot is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x4a925b71.  This method will return an error
+// if any inputs are invalid/nil.
+//
+// Solidity: function getStorageSlot(address _target, string _sig, address _param) returns(uint256)
+func (storageHelper *StorageHelper) TryPackGetStorageSlot(target common.Address, sig string, param common.Address) ([]byte, error) {
+	return storageHelper.abi.Pack("getStorageSlot", target, sig, param)
+}
+
+// UnpackGetStorageSlot is the Go binding that unpacks the parameters returned
+// from invoking the contract method with ID 0x4a925b71.
+//
+// Solidity: function getStorageSlot(address _target, string _sig, address _param) returns(uint256)
+func (storageHelper *StorageHelper) UnpackGetStorageSlot(data []byte) (*big.Int, error) {
+	out, err := storageHelper.abi.Unpack("getStorageSlot", data)
+	if err != nil {
+		return new(big.Int), err
+	}
+	out0 := abi.ConvertType(out[0], new(big.Int)).(*big.Int)
+	return out0, nil
+}
+
+// StorageHelperSlotFound represents a SlotFound event raised by the StorageHelper contract.
+type StorageHelperSlotFound struct {
+	Who      common.Address
+	Fsig     [4]byte
+	KeysHash [32]byte
+	Slot     *big.Int
+	Raw      *types.Log // Blockchain specific contextual infos
+}
+
+const StorageHelperSlotFoundEventName = "SlotFound"
+
+// ContractEventName returns the user-defined event name.
+func (StorageHelperSlotFound) ContractEventName() string {
+	return StorageHelperSlotFoundEventName
+}
+
+// UnpackSlotFoundEvent is the Go binding that unpacks the event data emitted
+// by contract.
+//
+// Solidity: event SlotFound(address who, bytes4 fsig, bytes32 keysHash, uint256 slot)
+func (storageHelper *StorageHelper) UnpackSlotFoundEvent(log *types.Log) (*StorageHelperSlotFound, error) {
+	event := "SlotFound"
+	if len(log.Topics) == 0 || log.Topics[0] != storageHelper.abi.Events[event].ID {
+		return nil, errors.New("event signature mismatch")
+	}
+	out := new(StorageHelperSlotFound)
+	if len(log.Data) > 0 {
+		if err := storageHelper.abi.UnpackIntoInterface(out, event, log.Data); err != nil {
+			return nil, err
+		}
+	}
+	var indexed abi.Arguments
+	for _, arg := range storageHelper.abi.Events[event].Inputs {
+		if arg.Indexed {
+			indexed = append(indexed, arg)
+		}
+	}
+	if err := abi.ParseTopics(out, indexed, log.Topics[1:]); err != nil {
+		return nil, err
+	}
+	out.Raw = log
+	return out, nil
+}
+
+// StorageHelperWARNINGUninitedSlot represents a WARNING_UninitedSlot event raised by the StorageHelper contract.
+type StorageHelperWARNINGUninitedSlot struct {
+	Who  common.Address
+	Slot *big.Int
+	Raw  *types.Log // Blockchain specific contextual infos
+}
+
+const StorageHelperWARNINGUninitedSlotEventName = "WARNING_UninitedSlot"
+
+// ContractEventName returns the user-defined event name.
+func (StorageHelperWARNINGUninitedSlot) ContractEventName() string {
+	return StorageHelperWARNINGUninitedSlotEventName
+}
+
+// UnpackWARNINGUninitedSlotEvent is the Go binding that unpacks the event data emitted
+// by contract.
+//
+// Solidity: event WARNING_UninitedSlot(address who, uint256 slot)
+func (storageHelper *StorageHelper) UnpackWARNINGUninitedSlotEvent(log *types.Log) (*StorageHelperWARNINGUninitedSlot, error) {
+	event := "WARNING_UninitedSlot"
+	if len(log.Topics) == 0 || log.Topics[0] != storageHelper.abi.Events[event].ID {
+		return nil, errors.New("event signature mismatch")
+	}
+	out := new(StorageHelperWARNINGUninitedSlot)
+	if len(log.Data) > 0 {
+		if err := storageHelper.abi.UnpackIntoInterface(out, event, log.Data); err != nil {
+			return nil, err
+		}
+	}
+	var indexed abi.Arguments
+	for _, arg := range storageHelper.abi.Events[event].Inputs {
+		if arg.Indexed {
+			indexed = append(indexed, arg)
+		}
+	}
+	if err := abi.ParseTopics(out, indexed, log.Topics[1:]); err != nil {
+		return nil, err
+	}
+	out.Raw = log
+	return out, nil
+}
