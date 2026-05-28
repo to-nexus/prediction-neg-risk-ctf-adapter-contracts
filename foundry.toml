@@ -7,7 +7,11 @@ optimizer = true
 optimizer_runs = 1_000_000
 
 ffi = true
-fs_permissions = [{ access = "read-write", path = ".forge-snapshots/"}, { access = "read", path = "./out/"}]
+fs_permissions = [
+    { access = "read-write", path = ".forge-snapshots/" },
+    { access = "read", path = "./out/" },
+    { access = "read", path = "../prediction-contracts/out/" },
+]
 
 [fmt]
 line_length = 120
