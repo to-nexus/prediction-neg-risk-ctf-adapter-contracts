@@ -4,7 +4,7 @@ pragma solidity 0.8.30;
 import {ERC1155TokenReceiver} from "lib/solmate/src/tokens/ERC1155.sol";
 import {ERC20} from "lib/solmate/src/tokens/ERC20.sol";
 import {SafeTransferLib} from "lib/solmate/src/utils/SafeTransferLib.sol";
-import {WrappedCollateral} from "./WrappedCollateral.sol";
+import {WrappedCollateral, ISeasonScopedCollateral, ISeasonScopedTransfer} from "./WrappedCollateral.sol";
 import {MarketData, MarketStateManager, IMarketStateManagerEE} from "./modules/MarketDataManager.sol";
 import {CTHelpers} from "./libraries/CTHelpers.sol";
 import {Helpers} from "./libraries/Helpers.sol";
@@ -21,6 +21,20 @@ interface INegRiskAdapterEE is IMarketStateManagerEE, IAuthEE {
     error UnexpectedCollateralToken();
     error NoConvertiblePositions();
     error NotApprovedForAll();
+    /// @dev A conditionId that this adapter never prepared was used on a season-scoped
+    ///      deployment. Without the question behind it the market — and so the season
+    ///      backing it — cannot be resolved, and paying out would have to guess.
+    error UnknownCondition(bytes32 conditionId);
+    /// @dev The underlying reported a season id of zero, which {marketSessionId} uses to
+    ///      mean "not pinned yet". Accepting it would leave the market re-pinning on every
+    ///      intake and paying out of whichever season happened to be live.
+    error InvalidCollateralSessionId();
+    /// @dev A conversion tried to pay out of a market that has never taken collateral, so
+    ///      there is no season to draw the released collateral from.
+    error MarketNotFunded(bytes32 marketId);
+    /// @dev Collateral was offered to a market whose season has closed. Taking it in would
+    ///      escrow live-season units under a pin the payout path can never hand back.
+    error MarketSeasonClosed(bytes32 marketId, uint256 pinnedSessionId, uint256 liveSessionId);
 
     event MarketPrepared(bytes32 indexed marketId, address indexed oracle, uint256 feeBips, bytes data);
     event QuestionPrepared(bytes32 indexed marketId, bytes32 indexed questionId, uint256 index, bytes data);
@@ -55,6 +69,26 @@ contract NegRiskAdapter is ERC1155TokenReceiver, MarketStateManager, INegRiskAda
     address public constant NO_TOKEN_BURN_ADDRESS = address(bytes20(bytes32(keccak256("NO_TOKEN_BURN_ADDRESS"))));
     uint256 public constant FEE_DENOMINATOR = 10_000;
 
+    /// @notice Whether the collateral keeps balances per season.
+    /// @dev Probed once, at construction, and never re-probed — see {WrappedCollateral}
+    ///      for why a mid-life flip would split the wrapper across both modes.
+    bool public immutable seasonScoped;
+
+    /// @notice The question behind each condition this adapter prepared.
+    /// @dev `conditionId` is a hash of the question, so it cannot be walked backwards.
+    ///      Recording the pair at preparation time is what lets {splitPosition} — which is
+    ///      handed only a conditionId — find the market, and through it the season backing
+    ///      that market. Written in both modes; only read in season-scoped mode.
+    mapping(bytes32 conditionId => bytes32 questionId) public conditionQuestionId;
+
+    /// @notice The season each market's collateral is escrowed under; `0` means not pinned.
+    /// @dev Pinned at the market's first collateral intake and never moved, mirroring the
+    ///      CTF's own `conditionSessionId`. Pinning per market rather than per question is
+    ///      what makes {convertPositions} sound: conversion pays out of collateral pooled
+    ///      across every question in the market, so those questions have to agree on a
+    ///      season by construction rather than by check.
+    mapping(bytes32 marketId => uint256 seasonId) public marketSessionId;
+
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
@@ -69,8 +103,64 @@ contract NegRiskAdapter is ERC1155TokenReceiver, MarketStateManager, INegRiskAda
         wcol = new WrappedCollateral(_collateral, col.decimals());
         // approve the ctf to transfer wcol on our behalf
         wcol.approve(_ctf, type(uint256).max);
-        // approve wcol to transfer collateral on our behalf
-        col.approve(address(wcol), type(uint256).max);
+
+        // The wrapper probes the collateral on the way up; reuse its answer rather than
+        // probing twice and risking the two disagreeing.
+        bool isSeasonScoped = wcol.seasonScoped();
+        seasonScoped = isSeasonScoped;
+
+        if (isSeasonScoped) {
+            // Season-scoped collateral leaves this contract through ERC-1155
+            // `safeTransferFrom`, which consults operator approval and never the ERC-20
+            // allowance. It HAS to be an operator approval: an allowance on such a token is
+            // recorded against the live season alone, so the `approve` below would fall to
+            // zero at the first season boundary and every wrap after that would revert —
+            // permanently, since this contract is immutable and exposes no way to renew it.
+            ISeasonScopedTransfer(_collateral).setApprovalForAll(address(wcol), true);
+        } else {
+            // approve wcol to transfer collateral on our behalf
+            col.approve(address(wcol), type(uint256).max);
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                                 SEASONS
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice The season a condition's collateral is escrowed under; `0` when the market
+    ///         has taken no collateral yet, and always `0` on a plain-ERC20 deployment.
+    function conditionSessionId(bytes32 _conditionId) public view returns (uint256) {
+        bytes32 questionId = conditionQuestionId[_conditionId];
+        if (questionId == bytes32(0)) return 0;
+        return marketSessionId[NegRiskIdLib.getMarketId(questionId)];
+    }
+
+    /// @dev Resolves the season to escrow under for `_conditionId`, pinning the market to
+    ///      the live season on its first intake. Every later intake, and every payout,
+    ///      obeys the record — re-reading the live season instead would let a market take
+    ///      in one season and pay out of another.
+    function _pinSession(bytes32 _conditionId) internal returns (uint256) {
+        bytes32 questionId = conditionQuestionId[_conditionId];
+        if (questionId == bytes32(0)) revert UnknownCondition(_conditionId);
+
+        bytes32 marketId = NegRiskIdLib.getMarketId(questionId);
+        uint256 sessionId = marketSessionId[marketId];
+        if (sessionId != 0) return sessionId;
+
+        sessionId = ISeasonScopedCollateral(address(col)).currentSessionId();
+        if (sessionId == 0) revert InvalidCollateralSessionId();
+
+        marketSessionId[marketId] = sessionId;
+        return sessionId;
+    }
+
+    /// @dev The season a payout must draw on. Unlike {_pinSession} this never pins: a
+    ///      market that never took collateral has nothing to pay out, and silently pinning
+    ///      it here would let a later intake land in a season the payout already used.
+    function _payoutSession(bytes32 _conditionId) internal view returns (uint256) {
+        uint256 sessionId = conditionSessionId(_conditionId);
+        if (sessionId == 0) revert UnknownCondition(_conditionId);
+        return sessionId;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -123,8 +213,35 @@ contract NegRiskAdapter is ERC1155TokenReceiver, MarketStateManager, INegRiskAda
     /// @param _conditionId - the conditionId for the question
     /// @param _amount      - the amount of collateral to split
     function splitPosition(bytes32 _conditionId, uint256 _amount) public {
-        col.safeTransferFrom(msg.sender, address(this), _amount);
-        wcol.wrap(address(this), _amount);
+        if (seasonScoped) {
+            uint256 sessionId = _pinSession(_conditionId);
+
+            // A market can only ever be funded while its own season is live, so the
+            // intake only ever needs the live season and the ordinary ERC-20 pull below
+            // reaches it. Checked explicitly rather than left to fail on a balance,
+            // because the facade would otherwise take LIVE-season units into a market
+            // pinned to an older one — escrowing collateral the payout path, bound to the
+            // pin, could never hand back.
+            //
+            // Pulling through the facade rather than by naming the season is deliberate:
+            // an ERC-20 allowance is all the funder has to grant, and because such an
+            // allowance is itself season-keyed it expires on its own at the boundary. An
+            // operator approval would have to span every season to be usable at all, and
+            // would then outlive both the market and any revocation of this adapter.
+            uint256 liveSessionId = ISeasonScopedCollateral(address(col)).currentSessionId();
+            if (sessionId != liveSessionId) {
+                revert MarketSeasonClosed(
+                    NegRiskIdLib.getMarketId(conditionQuestionId[_conditionId]), sessionId, liveSessionId
+                );
+            }
+
+            col.safeTransferFrom(msg.sender, address(this), _amount);
+            wcol.wrapSeason(address(this), _amount, sessionId);
+        } else {
+            col.safeTransferFrom(msg.sender, address(this), _amount);
+            wcol.wrap(address(this), _amount);
+        }
+
         ctf.splitPosition(address(wcol), bytes32(0), _conditionId, Helpers.partition(), _amount);
         ctf.safeBatchTransferFrom(
             address(this), msg.sender, Helpers.positionIds(address(wcol), _conditionId), Helpers.values(2, _amount), ""
@@ -162,7 +279,14 @@ contract NegRiskAdapter is ERC1155TokenReceiver, MarketStateManager, INegRiskAda
         // get conditional tokens from sender
         ctf.safeBatchTransferFrom(msg.sender, address(this), positionIds, Helpers.values(2, _amount), "");
         ctf.mergePositions(address(wcol), bytes32(0), _conditionId, Helpers.partition(), _amount);
-        wcol.unwrap(msg.sender, _amount);
+
+        // Pays out of the season this market was pinned to, not the live one, so a market
+        // that outlived its season still hands back exactly what it took in.
+        if (seasonScoped) {
+            wcol.unwrapSeason(msg.sender, _amount, _payoutSession(_conditionId));
+        } else {
+            wcol.unwrap(msg.sender, _amount);
+        }
 
         emit PositionsMerge(msg.sender, _conditionId, _amount);
     }
@@ -225,7 +349,13 @@ contract NegRiskAdapter is ERC1155TokenReceiver, MarketStateManager, INegRiskAda
 
         uint256 payout = wcol.balanceOf(address(this));
         if (payout > 0) {
-            wcol.unwrap(msg.sender, payout);
+            // Redemption is the path a market pinned to a closed season still has to
+            // work on — the whole reason the season is recorded rather than re-read.
+            if (seasonScoped) {
+                wcol.unwrapSeason(msg.sender, payout, _payoutSession(_conditionId));
+            } else {
+                wcol.unwrap(msg.sender, payout);
+            }
         }
 
         emit PayoutRedemption(msg.sender, _conditionId, _amounts, payout);
@@ -335,11 +465,9 @@ contract NegRiskAdapter is ERC1155TokenReceiver, MarketStateManager, INegRiskAda
             // collateral out is always proportional to the number of no positions minus 1
             uint256 multiplier = noPositionIds.length - 1;
             // transfer collateral fees to vault
-            if (feeAmount > 0) {
-                wcol.release(vault, multiplier * feeAmount);
-            }
+            _releaseConverted(_marketId, vault, multiplier * feeAmount);
             // transfer collateral to sender
-            wcol.release(msg.sender, multiplier * amountOut);
+            _releaseConverted(_marketId, msg.sender, multiplier * amountOut);
         }
 
         if (yesPositionIds.length > 0) {
@@ -386,6 +514,11 @@ contract NegRiskAdapter is ERC1155TokenReceiver, MarketStateManager, INegRiskAda
     function prepareQuestion(bytes32 _marketId, bytes calldata _metadata) external returns (bytes32) {
         (bytes32 questionId, uint256 questionIndex) = _prepareQuestion(_marketId);
         bytes32 conditionId = getConditionId(questionId);
+
+        // Recorded unconditionally, even when the condition already exists on the CTF:
+        // this pair is what lets a later `splitPosition` — handed only a conditionId —
+        // find the market whose season backs it.
+        conditionQuestionId[conditionId] = questionId;
 
         // check to see if the condition has already been prepared on the ctf
         if (ctf.getOutcomeSlotCount(conditionId) == 0) {
@@ -455,5 +588,24 @@ contract NegRiskAdapter is ERC1155TokenReceiver, MarketStateManager, INegRiskAda
     /// @dev internal function to avoid stack too deep in convertPositions
     function _splitPosition(bytes32 _conditionId, uint256 _amount) internal {
         ctf.splitPosition(address(wcol), bytes32(0), _conditionId, Helpers.partition(), _amount);
+    }
+
+    /// @dev Releases the collateral a conversion frees up, out of the season backing the
+    ///      market. Conversion pools collateral across every question in the market, which
+    ///      is exactly why the season is pinned per market and not per question: there is
+    ///      one season to name here, by construction rather than by check.
+    ///
+    ///      Also internal to avoid stack too deep in {convertPositions}, and it absorbs the
+    ///      zero-amount guard the two call sites would otherwise each need.
+    function _releaseConverted(bytes32 _marketId, address _to, uint256 _amount) internal {
+        if (_amount == 0) return;
+
+        if (seasonScoped) {
+            uint256 sessionId = marketSessionId[_marketId];
+            if (sessionId == 0) revert MarketNotFunded(_marketId);
+            wcol.releaseSeason(_to, _amount, sessionId);
+        } else {
+            wcol.release(_to, _amount);
+        }
     }
 }
